@@ -28,6 +28,7 @@ export default function LoginPage() {
         window.location.href = '/'; // Example redirect after successful login
       }
     } catch (err) {
+      console.log(err)
       setError('An error occurred. Please try again.');
     }
   }

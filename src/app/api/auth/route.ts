@@ -26,14 +26,14 @@ export async function GET(req: NextRequest) {
   } else {
     token = tokenCookie
   }
-  let checkUser = await UserModel.findByToken(token);
+  const checkUser = await UserModel.findByToken(token);
   
   if (checkUser) {
-    const userObject = { ...checkUser } as { [key: string]: any; password?: string };
-    delete userObject.password;
+    const { password, ...userWithoutPassword } = checkUser;
+    void password
 
     const response = NextResponse.json(
-      { success: true, data: userObject},
+      { success: true, data: userWithoutPassword},
       { status: 200 }
     );
 
@@ -47,18 +47,17 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const response = schema.safeParse(await req.json());
-  console.log('response', response)
   if (!response.success) {
     return NextResponse.json(
       response
     );
   }
 
-  const {email, password} = response.data;
-  let checkUser = await UserModel.findByEmail(email);
+  const respData = response.data;
+  const checkUser = await UserModel.findByEmail(respData.email);
   
   if (checkUser) {    
-    const validPassword = await checkPassword(password, checkUser.password)
+    const validPassword = await checkPassword(respData.password, checkUser.password)
     if (!validPassword) {
       return NextResponse.json(
         { success: false, message: "Password is not valid" },
@@ -69,13 +68,13 @@ export async function POST(req: NextRequest) {
     const token = generateToken(checkUser.id)
 
     // Convert to a plain object and cast to a more permissive type
-    const userObject = { ...checkUser, token: token } as { [key: string]: any; password?: string };
-    delete userObject.password;
+    const { password, ...userWithoutPassword } = checkUser;
+    void password
 
     await UserModel.update(checkUser.id, {token: token});
 
     const response = NextResponse.json(
-      { success: true, data: userObject},
+      { success: true, data: userWithoutPassword},
       { status: 200 }
     );
 

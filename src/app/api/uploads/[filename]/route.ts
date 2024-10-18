@@ -24,11 +24,11 @@ export async function GET(req: NextRequest, { params }: Params) {
     return new NextResponse(fileContents, {
       status: 200,
       headers: {
-        'Content-Type': 'image/jpeg', // Adjust content type if needed
+        'Content-Type': contentType, // Adjust content type if needed
       },
     });
   } catch (error) {
-    // File not found or other error
+    console.log(error)
     return new NextResponse('File not found', { status: 404 });
   }
 }

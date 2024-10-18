@@ -1,6 +1,6 @@
 'use client';
 
-import { redirect, useParams, useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import QuillEditor from '@/app/components/quillEditor';
 
@@ -10,7 +10,6 @@ interface FormPortfolioProps {
   }
 
 export default function FormPortfolio({ type, id }: FormPortfolioProps) {
-  const router = useRouter();
   const [company, setCompany] = useState('');
   const [title, setTitle] = useState('');
   const [tag, setTag] = useState('');
@@ -22,40 +21,41 @@ export default function FormPortfolio({ type, id }: FormPortfolioProps) {
     setDescription(value);
   };
 
-  if (type == 'edit'){
-    const getPortfolio = async () => {
-        try {
-          const res = await fetch(`/api/portfolios/${id}`, {
-            method: 'GET',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-          });
-    
-          if (res.ok) {
-            const json = await res.json();
-            const portfolio = json.data;
+  const getPortfolio = async () => {
+    try {
+      if (type == 'edit'){
+        const res = await fetch(`/api/portfolios/${id}`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        });
 
-            if (portfolio) {
-              setCompany(portfolio.company)
-              setTitle(portfolio.title)
-              setTag(portfolio.tag)
-              setDescription(portfolio.description)
-              setDateFrom(portfolio.dateFrom)
-              setDateTo(portfolio.dateTo)
-            }
-          }
-        } catch (err) {
+        if (res.ok) {
+          const json = await res.json();
+          const portfolio = json.data;
 
-        } finally {
-          if (!company || !title) {
-            // redirect('/portfolios')
+          if (portfolio) {
+            setCompany(portfolio.company)
+            setTitle(portfolio.title)
+            setTag(portfolio.tag)
+            setDescription(portfolio.description)
+            setDateFrom(portfolio.dateFrom)
+            setDateTo(portfolio.dateTo)
           }
         }
+      }
+    } catch (err) {
+      console.log(err)
+    } finally {
+      if (!company || !title) {
+        // redirect('/portfolios')
+      }
     }
-      useEffect(() => {
-        getPortfolio()
-      }, [])
   }
+
+  useEffect(() => {
+    getPortfolio()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,7 +77,7 @@ export default function FormPortfolio({ type, id }: FormPortfolioProps) {
       });
 
       if (res.ok) {
-        const json = await (res.json())
+        await (res.json())
         redirect('/portfolios')
       }
     } catch (err) {

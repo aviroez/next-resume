@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   }
 
   const {company, title, tag, description, dateFrom, dateTo} = response.data;
-  let portfolioDataForm = {
+  const portfolioDataForm = {
     company: company,
     title: title,
     tag: tag ? tag : ''
@@ -80,7 +80,7 @@ export async function PATCH(req: NextRequest) {
   }
   const {id, company, title, tag, description, dateFrom, dateTo} = response.data
 
-  let portfolioDataForm = { id }
+  const portfolioDataForm = { id }
   if (company !== undefined) {
     Object.assign(portfolioDataForm, { company: company })
   }

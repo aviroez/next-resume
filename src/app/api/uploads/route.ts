@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const params = Object.fromEntries(urlSearchParams.entries());
   console.log('params', params)
 
-  let where = {}
+  const where = {}
   if (params.portfolioId) Object.assign(where, { portfolioId: parseInt(params.portfolioId) })
 
   const uploads = await UploadModel.findAll(where)

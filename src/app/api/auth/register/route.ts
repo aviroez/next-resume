@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
         { status: 200 }
       );    
     }
-    let userDataForm = {
+    const userDataForm = {
       name: name,
       email: email,
       password: await generatePassword(password),

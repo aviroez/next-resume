@@ -27,6 +27,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Redirect or update the UI as needed
       }
     } catch (err) {
+      console.log(err)
     }
   }
 //   handleLogin()

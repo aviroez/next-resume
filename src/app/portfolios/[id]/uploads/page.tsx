@@ -2,9 +2,7 @@
 
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Metadata } from 'next';
 import Image from 'next/image';
-import { redirect, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 type Params = {
@@ -14,7 +12,6 @@ type Params = {
 }
 
 export default function UploadPage({params: {id}}: Params) {
-  const router = useRouter();
   const [loaded, setLoaded] = useState(false)
   const [company, setCompany] = useState('');
   const [title, setTitle] = useState('');
@@ -24,7 +21,7 @@ export default function UploadPage({params: {id}}: Params) {
   const [dateTo, setDateTo] = useState('');
   const [uploads, setUploads] = useState<Upload[] | []>([]);
   const [inputKey, setInputKey] = useState(Date.now());
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const getPortfolio = async () => {
     try {
@@ -48,8 +45,7 @@ export default function UploadPage({params: {id}}: Params) {
             }
         }
         } catch (err) {
-
-        } finally {
+          console.log(err)
         }
     }
 
@@ -75,10 +71,12 @@ export default function UploadPage({params: {id}}: Params) {
 
     useEffect(() => {
         if (id) getUploads(id)
-    }, [loaded])
+    }, [loaded, id])
 
-  const handleFileChange = (event: any) => {
-    setSelectedFile(event.target.files[0]);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setSelectedFile(event.target.files[0]);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -176,7 +174,7 @@ export default function UploadPage({params: {id}}: Params) {
                     <div key={upload.id} className="flex-1 w-64 mr-2">
                         <div key={upload.id} className="relative">
                             <Image src={`/api/uploads/${upload.name}`} alt={upload.name} height={100} width={100} className="rounded-md w-full"/>
-                            <button className="absolute top-0 left-2 text-white bg-red-400/70 rounded px-2 py-1 mt-1" onClick={(e) => deleteImage(upload.id)}>
+                            <button className="absolute top-0 left-2 text-white bg-red-400/70 rounded px-2 py-1 mt-1" onClick={() => deleteImage(upload.id)}>
                                 <FontAwesomeIcon icon={faTrash} />
                             </button>
                         </div>

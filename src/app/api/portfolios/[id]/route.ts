@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 import { jwtMiddleware } from "../../../../../middleware/jwtMiddleware";
 import PortfolioModel from "@/app/models/portfolioModel";
-import { useRouter } from "next/router";
 
 export async function GET(req: NextRequest) {
   const authResult = await jwtMiddleware(req);
@@ -18,7 +16,6 @@ export async function GET(req: NextRequest) {
   }
 
   const portfolio = await PortfolioModel.findById(id)
-  console.log('portfolio', id, portfolio)
 
   return NextResponse.json(
     { status: true, message: "this is a get request", data: portfolio },
