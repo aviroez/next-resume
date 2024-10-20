@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-const logoutAction = (req: NextRequest) => {
+const logoutAction = () => {
   const tokenType = process.env.TOKEN_TYPE ?? "token";
   const response = NextResponse.json(
     { message: "Successfully logout" },
@@ -19,10 +19,10 @@ const logoutAction = (req: NextRequest) => {
   return response
 
 }
-export async function GET(req: NextRequest) {
-  return logoutAction(req)
+export async function GET() {
+  return logoutAction()
 }
 
-export async function POST(req: NextRequest) {
-  return logoutAction(req)
+export async function POST() {
+  return logoutAction()
 }

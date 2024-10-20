@@ -41,7 +41,6 @@ export default function ChildLayout({ children }: ChildLayoutProps) {
       handleLogin()
     }, [])
 
-  
     const handleLogout = async () => {
         try {
           const res = await fetch('/api/auth/logout', {
@@ -50,12 +49,12 @@ export default function ChildLayout({ children }: ChildLayoutProps) {
             headers: { 'Content-Type': 'application/json' },
           });
 
-          const json = await res.json();
-
-          if (tokenType == 'token') {
-            sessionStorage.removeItem('bearer_token')
+          if (res.ok) {
+            if (tokenType == 'token') {
+              sessionStorage.removeItem('bearer_token')
+            }
+            window.location.href = '/login';
           }
-          window.location.href = '/login';
         } catch (err) {
             console.log(err)
             setError('An error occurred. Please try again.');
@@ -119,8 +118,8 @@ export default function ChildLayout({ children }: ChildLayoutProps) {
     ) : (
       <>
         {children}
-      </>          
-    )}      
+      </>
+    )}
     </div>
   )
 }
