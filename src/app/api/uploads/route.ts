@@ -19,7 +19,6 @@ export async function GET(req: NextRequest) {
   const { nextUrl: { search } } = req;
   const urlSearchParams = new URLSearchParams(search);
   const params = Object.fromEntries(urlSearchParams.entries());
-  console.log('params', params)
 
   const where = {}
   if (params.portfolioId) Object.assign(where, { portfolioId: parseInt(params.portfolioId) })
@@ -36,65 +35,75 @@ export async function POST(req: NextRequest) {
   const authResult = await jwtMiddleware(req);
   if (authResult) return authResult;
 
-  const formData = await req.formData();
-  const body = Object.fromEntries(formData);
-  const file = (body.file as Blob) || null;
-
-  const postUpload = {
-    portfolioId: parseInt(body.portfolioId.toString()),
-    name: body.name,
-  };
-  if (body.type !== undefined) {
-    Object.assign(postUpload, { type: body.type })
-  }
-
-  const response = schema.safeParse(postUpload);
-  if (!response.success) {
-    return NextResponse.json(
-      response
-    );
-  }
-  const { portfolioId, name, type } = response.data;
-  const portfolioModel = await PortfolioModel.findById(portfolioId)
+  try {
+    const formData = await req.formData();
+    const body = Object.fromEntries(formData);
+    const file = (body.file as Blob) || null;
   
-  if (!portfolioModel) {
-    return NextResponse.json({
-      success: false,
-      message: "Portfolio is not found"
-    });
-  }
-
-  if (file) {
-    const {fileName, directory, success, error} = await uploadFile(file);
-    console.log(fileName, directory, success, error)
-    if (error !== undefined) {
+    const postUpload = {
+      portfolioId: parseInt(body.portfolioId.toString()),
+      name: body.name,
+      type: 'image'
+    };
+    console.log('postOpload', postUpload)
+  
+    const response = schema.safeParse(postUpload);
+    if (!response.success) {
+      return NextResponse.json(
+        response
+      );
+    }
+    const { portfolioId, name, type } = response.data;
+    const portfolioModel = await PortfolioModel.findById(portfolioId)
+    
+    if (!portfolioModel) {
       return NextResponse.json({
         success: false,
-        error: error
-      });
-    } else if (!success){
-      return NextResponse.json({
-        success: success,
-        error: error
+        message: "Portfolio is not found"
       });
     }
-    const slug = generateSlug(name.toString());
-    const uploadData = await UploadModel.create({
-        name: fileName,
-        type: type ?? 'image',
-        slug: slug,
-        directory: directory,
-        portfolioId: portfolioId
-    })
-    return NextResponse.json({
-      success: true,
-      data: uploadData
-    });
-  } else {
+  
+    if (file) {
+      const {fileName, directory, success, error} = await uploadFile(file);
+      if (error !== undefined) {
+        return NextResponse.json({
+          success: false,
+          error: error
+        });
+      } else if (!success){
+        return NextResponse.json({
+          success: success,
+          error: error
+        });
+      }
+      const slug = generateSlug(name.toString());
+      const uploadData = await UploadModel.create({
+          name: fileName,
+          type: type ?? 'image',
+          slug: slug,
+          directory: directory,
+          portfolioId: portfolioId
+      })
+      return NextResponse.json({
+        success: true,
+        data: uploadData
+      });
+    }
+  } catch (err) {
+    console.log(err)
+
+    const error = err as Error;
+
     return NextResponse.json({
       success: false,
+      message: error.message
     });
   }
+
+  return NextResponse.json({
+    success: false,
+    message: 'Upload Failed'
+  });
 }
 
 export async function DELETE(req: NextRequest) {

@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import QuillEditor from '@/app/components/quillEditor';
+import customFetch from '@/customFetch';
 
 interface FormPortfolioProps {
     type: 'add' | 'edit';
@@ -24,15 +25,13 @@ export default function FormPortfolio({ type, id }: FormPortfolioProps) {
   const getPortfolio = async () => {
     try {
       if (type == 'edit'){
-        const res = await fetch(`/api/portfolios/${id}`, {
+        const res = await customFetch(`/api/portfolios/${id}`, {
           method: 'GET',
-          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
         });
 
-        if (res.ok) {
-          const json = await res.json();
-          const portfolio = json.data;
+        if (res.data) {
+          const portfolio = res.data;
 
           if (portfolio) {
             setCompany(portfolio.company)
@@ -46,10 +45,6 @@ export default function FormPortfolio({ type, id }: FormPortfolioProps) {
       }
     } catch (err) {
       console.log(err)
-    } finally {
-      if (!company || !title) {
-        // redirect('/portfolios')
-      }
     }
   }
 
@@ -69,15 +64,13 @@ export default function FormPortfolio({ type, id }: FormPortfolioProps) {
         dateFrom: dateFrom,
         dateTo: dateTo,
       }
-      const res = await fetch('/api/portfolios', {
+      const res = await customFetch('/api/portfolios', {
         method: type == 'edit' ? 'PATCH' : 'POST',
-        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(type == 'edit' ? {...portfolioBody, id: parseInt(id!)} : portfolioBody)
       });
 
-      if (res.ok) {
-        await (res.json())
+      if (res.data) {
         redirect('/portfolios')
       }
     } catch (err) {

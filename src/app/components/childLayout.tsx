@@ -1,5 +1,6 @@
 'use client'
 
+import customFetch from '@/customFetch';
 import { faHouse, faListCheck, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
@@ -11,39 +12,29 @@ interface ChildLayoutProps {
   }
 
 export default function ChildLayout({ children }: ChildLayoutProps) {
+    const tokenType = process.env.TOKEN_TYPE ?? "token";
     const pathname = usePathname()
-    console.log(pathname)
     const [user, setUser] = useState<object | null>(null);
     const [error, setError] = useState<string | null>(null);
   
     const handleLogin = async () => {
       try {
-        const res = await fetch('/api/auth', {
+        const res = await customFetch('/api/auth', {
           method: 'GET',
-          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
         });
-  
-        const json = await res.json();
-        if (!res.ok) {
-          setError(json.message || 'Login failed');
-  
-          // Redirect if not in login page
-          if (!pathname.includes('/login')) {
-            window.location.href = '/login';
-          }
-        } else if (!json.success){
-          if (!pathname.includes('/login')) {
-            window.location.href = '/login';
-          }
-          setError(json.message);
-        } else {
-          setUser(json.data)
+        if (res.data && res.data.id) {
+          setUser(res.data)
           setError(null);
+        } else {
+          if (!pathname.includes('/login')) {
+            window.location.href = '/login';
+          }
         }
       } catch (err) {
         console.log(err)
         setError('An error occurred. Please try again.');
+        // Redirect if not in login page
       }
     }
     useEffect(() => {
@@ -53,29 +44,18 @@ export default function ChildLayout({ children }: ChildLayoutProps) {
   
     const handleLogout = async () => {
         try {
-          const res = await fetch('/api/auth', {
+          const res = await fetch('/api/auth/logout', {
             method: 'GET',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
           });
-    
+
           const json = await res.json();
-          if (!res.ok) {
-            setError(json.message || 'Login failed');
-    
-            // Redirect if not in login page
-            if (!pathname.includes('/login')) {
-              window.location.href = '/login';
-            }
-          } else if (!json.success){
-            if (!pathname.includes('/login')) {
-              window.location.href = '/login';
-            }
-            setError(json.message);
-          } else {
-            setUser(json.data)
-            setError(null);
+
+          if (tokenType == 'token') {
+            sessionStorage.removeItem('bearer_token')
           }
+          window.location.href = '/login';
         } catch (err) {
             console.log(err)
             setError('An error occurred. Please try again.');
@@ -85,7 +65,7 @@ export default function ChildLayout({ children }: ChildLayoutProps) {
     <div>{user ? (
         <div className="flex h-screen">
           {/* Left Navbar */}
-          <aside className="w-64 bg-gray-800 text-white flex-shrink-0">
+          <aside className="sm:w-56 w-32 bg-gray-800 text-white flex-shrink-0">
             <div className="p-4 text-lg font-bold">Menu</div>
             <nav>
               <ul className="space-y-2">

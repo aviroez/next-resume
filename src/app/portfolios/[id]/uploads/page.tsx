@@ -1,5 +1,6 @@
 'use client';
 
+import customFetch from '@/customFetch';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
@@ -25,15 +26,13 @@ export default function UploadPage({params: {id}}: Params) {
 
   const getPortfolio = async () => {
     try {
-        const res = await fetch(`/api/portfolios/${id}`, {
+        const res = await customFetch(`/api/portfolios/${id}`, {
             method: 'GET',
-            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
         });
 
-        if (res.ok) {
-            const json = await res.json();
-            const portfolio = json.data;
+        if (res.data) {
+            const portfolio = res.data;
 
             if (portfolio) {
                 setCompany(portfolio.company)
@@ -51,15 +50,13 @@ export default function UploadPage({params: {id}}: Params) {
 
     const getUploads = async (portfolioId: string) => {
         try {
-            const res = await fetch(`/api/uploads?portfolioId=${portfolioId}`, {
-            method: 'GET',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
+            const res = await customFetch(`/api/uploads?portfolioId=${portfolioId}`, {
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json' },
             });
 
-            if (res.ok) {
-                const json = await res.json();
-                setUploads(json.data);
+            if (res.data) {
+                setUploads(res.data);
             }
         } catch (err) {
             console.log(err);
@@ -87,10 +84,9 @@ export default function UploadPage({params: {id}}: Params) {
       formData.append('file', selectedFile!);
       formData.append('name', title);
 
-      const res = await fetch('/api/uploads', {
+      const res = await customFetch('/api/uploads', {
         method: 'POST',
-        credentials: 'include',
-        body: formData
+        body: formData,
       });
 
       if (res.ok) {
@@ -109,14 +105,13 @@ export default function UploadPage({params: {id}}: Params) {
 
   const deleteImage = async (id: number) => {
     try {
-        const res = await fetch(`/api/uploads`, {
+        const res = await customFetch(`/api/uploads`, {
             method: 'DELETE',
-            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({id: id})
         });
 
-        if (res.ok) {
+        if (res.data) {
             setLoaded(!loaded)
         }
     } catch (err) {

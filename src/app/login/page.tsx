@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
+  const tokenType = process.env.TOKEN_TYPE ?? "token";
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -19,11 +20,17 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
       });
 
+      const jsonData = await res.json();
       if (!res.ok) {
-        const errorData = await res.json();
-        setError(errorData.message || 'Login failed');
+        setError(jsonData.message || 'Login failed');
       } else {
         setError(null);
+
+        if (tokenType == 'token') {
+          if (window) {
+            sessionStorage.setItem('bearer_token', jsonData.data.token)
+          }
+        }
         // Redirect or update the UI as needed
         window.location.href = '/'; // Example redirect after successful login
       }

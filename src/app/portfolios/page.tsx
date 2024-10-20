@@ -4,22 +4,22 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
+import customFetch from '@/customFetch';
 
 export default function PortfoliosPage() {
   const [portfolios, setPortfolios] = useState<Portfolio[] | []>([])
 
   const getPortfolios = async () => {
     try {
-      const res = await fetch('/api/portfolios', {
+      const res = await customFetch('/api/portfolios', {
         method: 'GET',
-        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
       });
 
-      if (res.ok) {
-        const json = await res.json();
-        setPortfolios(json.data);
+      if (res.data) {
+        setPortfolios(res.data);
       } else {
+        setPortfolios([]);
       }
     } catch (err) {
       console.log(err);
