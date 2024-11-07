@@ -132,7 +132,8 @@ export default function UploadPage({params: {id}}: Params) {
           <label htmlFor="title" className="block text-sm font-medium">Title: {title}</label>
         </div>
         <div>
-          <label htmlFor="description" className="block text-sm font-medium">Description: {description}</label>
+          <label htmlFor="description" className="block text-sm font-medium">Description: </label>
+          <div dangerouslySetInnerHTML={{ __html: description }} />
         </div>
         <div>
           <label htmlFor="tag" className="block text-sm font-medium">Tags: {tag}</label>

@@ -2,8 +2,10 @@
 
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { format } from 'date-fns';
 import QuillEditor from '@/app/components/quillEditor';
 import customFetch from '@/customFetch';
+import Loading from '@/app/components/loading';
 
 interface FormPortfolioProps {
     type: 'add' | 'edit';
@@ -17,6 +19,7 @@ export default function FormPortfolio({ type, id }: FormPortfolioProps) {
   const [description, setDescription] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [loading, setIsLoading] = useState(false)
 
   const handleEditorChange = (value: string) => {
     setDescription(value);
@@ -25,6 +28,7 @@ export default function FormPortfolio({ type, id }: FormPortfolioProps) {
   const getPortfolio = async () => {
     try {
       if (type == 'edit'){
+        setIsLoading(true);
         const res = await customFetch(`/api/portfolios/${id}`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -38,13 +42,19 @@ export default function FormPortfolio({ type, id }: FormPortfolioProps) {
             setTitle(portfolio.title)
             setTag(portfolio.tag)
             setDescription(portfolio.description)
-            setDateFrom(portfolio.dateFrom)
-            setDateTo(portfolio.dateTo)
+            if (portfolio.dateFrom) {
+              setDateFrom(format(new Date(portfolio.dateFrom), 'yyyy-MM-dd'))
+            }
+            if (portfolio.dateTo) {
+              setDateTo(format(new Date(portfolio.dateTo), 'yyyy-MM-dd'))
+            }
           }
         }
       }
     } catch (err) {
       console.log(err)
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -70,6 +80,7 @@ export default function FormPortfolio({ type, id }: FormPortfolioProps) {
         body: JSON.stringify(type == 'edit' ? {...portfolioBody, id: parseInt(id!)} : portfolioBody)
       });
 
+      console.log(res)
       if (res.data) {
         redirect('/portfolios')
       }
@@ -156,9 +167,11 @@ export default function FormPortfolio({ type, id }: FormPortfolioProps) {
             />
           </div>
         </div>
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        {loading && <Loading />}
+        {!loading && <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
           Save
-        </button>
+        </button>}
+        
       </form>
 
       <hr className="mt-5"/>

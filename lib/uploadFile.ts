@@ -34,4 +34,4 @@ export async function uploadFile(file: Blob) {
         console.log(err)
         return {success: false, error: err};
     }
-  }
+}

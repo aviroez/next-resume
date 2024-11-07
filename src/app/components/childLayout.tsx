@@ -1,7 +1,7 @@
 'use client'
 
 import customFetch from '@/customFetch';
-import { faHouse, faListCheck, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faHouse, faList, faListCheck, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -18,6 +18,7 @@ export default function ChildLayout({ children }: ChildLayoutProps) {
     const [error, setError] = useState<string | null>(null);
   
     const handleLogin = async () => {
+      console.log('pathname', pathname)
       try {
         const res = await customFetch('/api/auth', {
           method: 'GET',
@@ -35,6 +36,9 @@ export default function ChildLayout({ children }: ChildLayoutProps) {
         console.log(err)
         setError('An error occurred. Please try again.');
         // Redirect if not in login page
+          if (!pathname.includes('/login')) {
+            window.location.href = '/login';
+          }
       }
     }
     useEffect(() => {
@@ -64,32 +68,36 @@ export default function ChildLayout({ children }: ChildLayoutProps) {
     <div>{user ? (
         <div className="flex h-screen">
           {/* Left Navbar */}
-          <aside className="sm:w-56 w-32 bg-gray-800 text-white flex-shrink-0">
-            <div className="p-4 text-lg font-bold">Menu</div>
+          
+          <aside className="w-15 md:w-44 lg:w-56 bg-gray-800 text-white flex-shrink-0">
+            <div className="flex justify-between">
+              <div className="p-4 text-lg font-bold text-center hidden sm:block">Menu</div>
+              <FontAwesomeIcon icon={faList} className="hidden sm:block my-auto mx-2 hover:text-slate-400 cursor-pointer"/>
+            </div>
             <nav>
               <ul className="space-y-2">
                 <li>
                   <Link href="/" className="flex items-center p-3 hover:bg-gray-700">
                     <FontAwesomeIcon icon={faHouse} />
-                    <span className="mx-2">Dashboard</span>
+                    <span className="mx-2 hidden sm:block">Dashboard</span>
                   </Link>
                 </li>
                 <li>
                   <Link href="/users" className="flex items-center p-3 hover:bg-gray-700">
                     <FontAwesomeIcon icon={faUser} />
-                    <span className="mx-2">Users</span>
+                    <span className="mx-2 hidden sm:block">Users</span>
                   </Link>
                 </li>
                 <li>
                   <Link href="/portfolios" className="flex items-center p-3 hover:bg-gray-700">
                     <FontAwesomeIcon icon={faListCheck} />
-                    <span className="mx-2">Portfolios</span>
+                    <span className="mx-2 hidden sm:block">Portfolios</span>
                   </Link>
                 </li>
                 <li>
                   <button onClick={handleLogout} className="flex items-center p-3 hover:bg-gray-700">
                     <FontAwesomeIcon icon={faLock} />
-                    <span className="mx-2">Logout</span>
+                    <span className="mx-2 hidden sm:block">Logout</span>
                   </button>
                 </li>
               </ul>
@@ -99,8 +107,11 @@ export default function ChildLayout({ children }: ChildLayoutProps) {
           {/* Content Area */}
           <div className="flex-1 flex flex-col">
             {/* Top Bar */}
-            <header className="bg-gray-900 text-white p-4">
-              <h1 className="text-xl">Admin</h1>
+            <header className="bg-gray-900 text-white p-4 flex">
+              <FontAwesomeIcon icon={faList} className="block sm:hidden my-auto mx-2 hover:text-slate-400 cursor-pointer"/>
+              <h1 className="text-xl">
+                Admin
+              </h1>
             </header>
 
             {/* Main Content */}
